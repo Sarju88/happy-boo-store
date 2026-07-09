@@ -4,6 +4,8 @@ import { Check, Minus, Plus, ShoppingBag, Sparkles, Trash2, X } from "lucide-rea
 import "./styles.css";
 import { products, type Product } from "./products";
 
+const asset = (path: string) => `${import.meta.env.BASE_URL}${path}`;
+
 type CartItem = {
   product: Product;
   quantity: number;
@@ -64,7 +66,7 @@ function App() {
       <header className="hero">
         <nav className="topbar" aria-label="Store navigation">
           <a className="brand" href="#top" aria-label="Happy Boo Merch Store home">
-            <img src="/assets/icon.png" alt="" />
+            <img src={asset("assets/icon.png")} alt="" />
             <span>Happy Boo Merch</span>
           </a>
           <a className="play-link" href="#products">
@@ -260,7 +262,7 @@ function App() {
               <X size={20} aria-hidden="true" />
             </button>
             <div className="modal-art">
-              <img src="/assets/boo/gold-boo.png" alt="" />
+              <img src={asset("assets/boo/gold-boo.png")} alt="" />
             </div>
             <p className="eyebrow">Coming soon</p>
             <h2 id="checkout-title">Checkout is a demo for now.</h2>

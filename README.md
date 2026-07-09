@@ -15,6 +15,16 @@ Build the static site with:
 npm run build
 ```
 
+Preview the production build locally with:
+
+```bash
+npm run preview
+```
+
+GitHub Pages should deploy the generated `dist` folder through `.github/workflows/pages.yml`.
+Do not point Pages directly at the repo root, because the root `index.html` is the Vite source
+entry and must be built first.
+
 ## Asset Sources
 
 The storefront intentionally copies a small set of user-owned game assets from:

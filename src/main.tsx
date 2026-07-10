@@ -147,7 +147,7 @@ function App() {
       <footer className="footer">
         <span>Happy Boo Digital Downloads</span>
         <span>All items are free. Donations are optional.</span>
-        <span>Copyright 2026 Sarju88</span>
+        <span>© 2026 Sarju88</span>
       </footer>
 
       {pendingDownload ? (

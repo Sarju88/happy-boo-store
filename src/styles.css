@@ -350,6 +350,15 @@ h1 {
   filter: drop-shadow(0 10px 0 rgba(31, 34, 48, 0.1));
 }
 
+.product-art img[src*="wallpapers"] {
+  width: min(240px, 92%);
+  max-width: 240px;
+  max-height: 136px;
+  border: 3px solid rgba(255, 255, 255, 0.72);
+  border-radius: 8px;
+  image-rendering: auto;
+}
+
 .product-info {
   padding: 18px 18px 10px;
 }

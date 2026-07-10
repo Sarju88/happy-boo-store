@@ -60,12 +60,12 @@ export const products: Product[] = [
     shortName: "Gold Wallpaper",
     category: "Desktop Backgrounds",
     description: "A sunny Gold Boo download for players who want a coin-streak desktop vibe.",
-    image: asset("assets/boo/gold-boo.png"),
-    downloadUrl: asset("assets/boo/gold-boo.png"),
+    image: asset("assets/wallpapers/gold-boo-desktop-background.png"),
+    downloadUrl: asset("assets/wallpapers/gold-boo-desktop-background.png"),
     fileName: "gold-boo-desktop-background.png",
     fileType: "PNG background",
     accentColor: "#ffc832",
-    details: ["PNG", "Desktop", "Gold skin"]
+    details: ["1920 x 1080", "PNG", "Desktop"]
   },
   {
     id: "sappy-boo-wallpaper",
@@ -73,12 +73,12 @@ export const products: Product[] = [
     shortName: "Sappy Wallpaper",
     category: "Desktop Backgrounds",
     description: "A leafy Sappy Boo background for calm desktops and cozy setups.",
-    image: asset("assets/boo/sappy-boo.png"),
-    downloadUrl: asset("assets/boo/sappy-boo.png"),
+    image: asset("assets/wallpapers/sappy-boo-desktop-background.png"),
+    downloadUrl: asset("assets/wallpapers/sappy-boo-desktop-background.png"),
     fileName: "sappy-boo-desktop-background.png",
     fileType: "PNG background",
     accentColor: "#86d95b",
-    details: ["PNG", "Desktop", "Sappy skin"]
+    details: ["1920 x 1080", "PNG", "Desktop"]
   },
   {
     id: "food-pickup-icon",

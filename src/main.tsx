@@ -1,101 +1,66 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { Check, Minus, Plus, ShoppingBag, Sparkles, Trash2, X } from "lucide-react";
+import { Download, Gift, Heart, Image, Sparkles, X } from "lucide-react";
 import "./styles.css";
 import { products, type Product } from "./products";
 
 const asset = (path: string) => `${import.meta.env.BASE_URL}${path}`;
 
-type CartItem = {
-  product: Product;
-  quantity: number;
-  option: string;
-};
-
-const formatPrice = (value: number) =>
-  new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD"
-  }).format(value);
-
 function App() {
-  const [cart, setCart] = React.useState<Record<string, CartItem>>({});
-  const [checkoutOpen, setCheckoutOpen] = React.useState(false);
   const [activeCategory, setActiveCategory] = React.useState("All");
+  const [pendingDownload, setPendingDownload] = React.useState<Product | null>(null);
 
   const categories = ["All", ...Array.from(new Set(products.map((product) => product.category)))];
   const visibleProducts =
     activeCategory === "All"
       ? products
       : products.filter((product) => product.category === activeCategory);
-  const cartItems = Object.values(cart);
-  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-  const subtotal = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
 
-  const addToCart = (product: Product) => {
-    const option = product.options[0] ?? "Standard";
-    const key = `${product.id}:${option}`;
-
-    setCart((current) => ({
-      ...current,
-      [key]: current[key]
-        ? { ...current[key], quantity: current[key].quantity + 1 }
-        : { product, option, quantity: 1 }
-    }));
-  };
-
-  const updateQuantity = (key: string, nextQuantity: number) => {
-    setCart((current) => {
-      if (nextQuantity <= 0) {
-        const { [key]: _removed, ...rest } = current;
-        return rest;
-      }
-
-      return {
-        ...current,
-        [key]: {
-          ...current[key],
-          quantity: nextQuantity
-        }
-      };
-    });
+  const startDownload = (product: Product) => {
+    const link = document.createElement("a");
+    link.href = product.downloadUrl;
+    link.download = product.fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setPendingDownload(null);
   };
 
   return (
     <main className="store-shell">
       <header className="hero">
         <nav className="topbar" aria-label="Store navigation">
-          <a className="brand" href="#top" aria-label="Happy Boo Merch Store home">
+          <a className="brand" href="#top" aria-label="Happy Boo Digital Store home">
             <img src={asset("assets/icon.png")} alt="" />
-            <span>Happy Boo Merch</span>
+            <span>Happy Boo Downloads</span>
           </a>
-          <a className="play-link" href="#products">
-            Shop drops
+          <a className="play-link" href="#downloads">
+            Browse freebies
           </a>
         </nav>
 
         <section className="hero-grid" id="top">
           <div className="hero-copy">
-            <p className="eyebrow">Fresh from the in-game skin shop</p>
-            <h1>Happy Boo merch for every skin, run, and coin streak.</h1>
+            <p className="eyebrow">Free digital goodies</p>
+            <h1>Happy Boo downloads for profiles, desktops, and game fans.</h1>
             <p>
-              A bright demo storefront for plushies, tees, pins, and desk goods inspired by
-              Classic Boo, Berry Boo, Mint Boo, Gold Boo, Sappy Boo, food pickups, bombs, and
-              monster waves.
+              Grab free profile pictures, wallpapers, icon art, and printable-style digital
+              extras inspired by Classic Boo, Berry Boo, Mint Boo, Gold Boo, Sappy Boo, pickups,
+              bombs, and monster waves.
             </p>
             <div className="hero-actions">
-              <a className="button primary" href="#products">
-                <ShoppingBag size={19} aria-hidden="true" />
-                Shop merch
+              <a className="button primary" href="#downloads">
+                <Download size={19} aria-hidden="true" />
+                Get downloads
               </a>
-              <a className="button secondary" href="#cart">
-                <Sparkles size={19} aria-hidden="true" />
-                View demo cart
+              <a className="button secondary" href="#support-note">
+                <Heart size={19} aria-hidden="true" />
+                How donations work
               </a>
             </div>
           </div>
 
-          <div className="hero-products" aria-label="Featured Happy Boo skins">
+          <div className="hero-products" aria-label="Featured Happy Boo downloads">
             {products.slice(0, 5).map((product) => (
               <article
                 className="mini-card"
@@ -103,20 +68,32 @@ function App() {
                 key={product.id}
               >
                 <img src={product.image} alt={product.name} />
-                <span>{product.name.replace(" Plush", "")}</span>
+                <span>{product.shortName}</span>
               </article>
             ))}
           </div>
         </section>
       </header>
 
-      <section className="section product-section" id="products">
+      <section className="section support-strip" id="support-note">
+        <Gift size={32} aria-hidden="true" />
+        <div>
+          <p className="eyebrow">Free first</p>
+          <h2>Everything here costs $0.</h2>
+          <p>
+            Before each download, the store asks whether you want to make a small optional
+            donation. You can always continue without donating.
+          </p>
+        </div>
+      </section>
+
+      <section className="section product-section" id="downloads">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Store catalog</p>
-            <h2>Boo skins, survival gear, and monster-wave keepsakes</h2>
+            <p className="eyebrow">Digital catalog</p>
+            <h2>Profile pictures, wallpapers, icons, and fan downloads</h2>
           </div>
-          <div className="tabs" aria-label="Filter products by category">
+          <div className="tabs" aria-label="Filter downloads by category">
             {categories.map((category) => (
               <button
                 className={activeCategory === category ? "tab active" : "tab"}
@@ -144,22 +121,22 @@ function App() {
                 <p className="category">{product.category}</p>
                 <h3>{product.name}</h3>
                 <p>{product.description}</p>
-                <div className="option-row" aria-label={`${product.name} options`}>
-                  {product.options.map((option) => (
-                    <span key={option}>{option}</span>
+                <div className="option-row" aria-label={`${product.name} file details`}>
+                  {product.details.map((detail) => (
+                    <span key={detail}>{detail}</span>
                   ))}
                 </div>
               </div>
               <div className="product-footer">
-                <strong>{formatPrice(product.price)}</strong>
+                <strong>Free</strong>
                 <button
                   className="button compact"
-                  data-testid={`add-${product.id}`}
-                  onClick={() => addToCart(product)}
+                  data-testid={`download-${product.id}`}
+                  onClick={() => setPendingDownload(product)}
                   type="button"
                 >
-                  <Plus size={18} aria-hidden="true" />
-                  Add
+                  <Download size={18} aria-hidden="true" />
+                  Download
                 </button>
               </div>
             </article>
@@ -167,112 +144,65 @@ function App() {
         </div>
       </section>
 
-      <aside className="cart-panel" id="cart" aria-label="Demo shopping cart">
-        <div className="cart-header">
-          <div>
-            <p className="eyebrow">Demo checkout</p>
-            <h2>Cart</h2>
-          </div>
-          <span className="cart-count">{cartCount} item{cartCount === 1 ? "" : "s"}</span>
-        </div>
-
-        {cartItems.length === 0 ? (
-          <div className="empty-cart">
-            <ShoppingBag size={38} aria-hidden="true" />
-            <p>Add a Boo plush or survival good to preview the cart.</p>
-          </div>
-        ) : (
-          <div className="cart-items">
-            {cartItems.map((item) => {
-              const key = `${item.product.id}:${item.option}`;
-              return (
-                <article className="cart-item" key={key}>
-                  <img src={item.product.image} alt="" />
-                  <div>
-                    <h3>{item.product.name}</h3>
-                    <p>{item.option}</p>
-                    <strong>{formatPrice(item.product.price * item.quantity)}</strong>
-                  </div>
-                  <div className="quantity-controls" aria-label={`${item.product.name} quantity`}>
-                    <button
-                      aria-label={`Remove one ${item.product.name}`}
-                      onClick={() => updateQuantity(key, item.quantity - 1)}
-                      type="button"
-                    >
-                      <Minus size={16} aria-hidden="true" />
-                    </button>
-                    <span>{item.quantity}</span>
-                    <button
-                      aria-label={`Add one ${item.product.name}`}
-                      onClick={() => updateQuantity(key, item.quantity + 1)}
-                      type="button"
-                    >
-                      <Plus size={16} aria-hidden="true" />
-                    </button>
-                    <button
-                      aria-label={`Remove ${item.product.name} from cart`}
-                      onClick={() => updateQuantity(key, 0)}
-                      type="button"
-                    >
-                      <Trash2 size={16} aria-hidden="true" />
-                    </button>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        )}
-
-        <div className="cart-total">
-          <span>Subtotal</span>
-          <strong>{formatPrice(subtotal)}</strong>
-        </div>
-        <button
-          className="button checkout"
-          data-testid="checkout-preview"
-          disabled={cartItems.length === 0}
-          onClick={() => setCheckoutOpen(true)}
-          type="button"
-        >
-          <Check size={19} aria-hidden="true" />
-          Preview checkout
-        </button>
-      </aside>
-
       <footer className="footer">
-        <span>Happy Boo Merch Store</span>
-        <span>Static demo storefront. No payment is collected.</span>
+        <span>Happy Boo Digital Downloads</span>
+        <span>All items are free. Donations are optional.</span>
       </footer>
 
-      {checkoutOpen ? (
-        <div className="modal-backdrop" role="presentation">
+      {pendingDownload ? (
+        <div className="donation-backdrop" role="presentation">
           <section
-            aria-labelledby="checkout-title"
+            aria-labelledby="donation-title"
             aria-modal="true"
-            className="checkout-modal"
+            className="donation-modal"
             role="dialog"
           >
             <button
-              aria-label="Close checkout preview"
-              className="icon-button"
-              data-testid="close-checkout"
-              onClick={() => setCheckoutOpen(false)}
+              aria-label="Close donation prompt"
+              className="icon-button donation-close"
+              data-testid="close-donation"
+              onClick={() => setPendingDownload(null)}
               type="button"
             >
-              <X size={20} aria-hidden="true" />
+              <X size={22} aria-hidden="true" />
             </button>
-            <div className="modal-art">
-              <img src={asset("assets/boo/gold-boo.png")} alt="" />
+
+            <div
+              className="donation-preview"
+              style={{ "--accent": pendingDownload.accentColor } as React.CSSProperties}
+              aria-hidden="true"
+            >
+              <Image size={28} />
+              <img src={pendingDownload.image} alt="" />
+              <span>{pendingDownload.fileType}</span>
             </div>
-            <p className="eyebrow">Coming soon</p>
-            <h2 id="checkout-title">Checkout is a demo for now.</h2>
+
+            <p className="eyebrow">Optional support</p>
+            <h2 id="donation-title">Keep Happy Boo downloads free</h2>
             <p>
-              Your cart totals {formatPrice(subtotal)}, but this storefront does not collect
-              payment yet. Product IDs and checkout links can be wired to a real provider later.
+              You are about to download <strong>{pendingDownload.name}</strong> for free. If you
+              want to support more Happy Boo extras, you can leave a small donation first.
             </p>
-            <button className="button primary" onClick={() => setCheckoutOpen(false)} type="button">
-              Back to store
-            </button>
+
+            <div className="donation-actions">
+              <a
+                className="button donate"
+                href="https://github.com/sponsors/Sarju88"
+                rel="noreferrer"
+                target="_blank"
+              >
+                <Heart size={19} aria-hidden="true" />
+                Donate
+              </a>
+              <button
+                className="continue-link"
+                data-testid="continue-download"
+                onClick={() => startDownload(pendingDownload)}
+                type="button"
+              >
+                Continue without donating
+              </button>
+            </div>
           </section>
         </div>
       ) : null}

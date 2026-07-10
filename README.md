@@ -1,6 +1,6 @@
-# Happy Boo Merch Store
+# Happy Boo Downloads
 
-A static demo merch storefront for **Happy Boo Game**, built from the local Godot project's game-facing visual language.
+A static free-download storefront for **Happy Boo Game**, built from the local Godot project's game-facing visual language.
 
 ## Development
 
@@ -25,6 +25,12 @@ GitHub Pages should deploy the generated `dist` folder through `.github/workflow
 Do not point Pages directly at the repo root, because the root `index.html` is the Vite source
 entry and must be built first.
 
+## Download Flow
+
+All items are free digital downloads: profile pictures, desktop backgrounds, icons, and stickers.
+Clicking a download opens an optional donation prompt first. Users can donate or continue without
+donating.
+
 ## Asset Sources
 
 The storefront intentionally copies a small set of user-owned game assets from:
@@ -45,4 +51,4 @@ Copied assets:
 - `monsters/assets/bee_rest.png`
 - `monsters/assets/slime_spike_rest.png`
 
-The checkout is demo-only. No payment is collected.
+No payment is required to download.

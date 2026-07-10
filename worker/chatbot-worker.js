@@ -1,4 +1,4 @@
-const MODEL = "@cf/meta/llama-3.1-8b-instruct";
+const MODEL = "@cf/meta/llama-3.1-8b-instruct-fast";
 const MAX_MESSAGE_LENGTH = 700;
 
 const SYSTEM_PROMPT = `
@@ -42,6 +42,10 @@ export default {
 };
 
 async function handleChat(request, env) {
+  if (!env.AI) {
+    return json({ error: "Workers AI binding named AI is missing." }, env, 500);
+  }
+
   let body;
   try {
     body = await request.json();
@@ -61,8 +65,24 @@ async function handleChat(request, env) {
     { role: "user", content: userMessage }
   ];
 
-  const response = await env.AI.run(MODEL, { messages });
-  const reply = typeof response?.response === "string" ? response.response : "I can help with Happy Boo downloads and game strategy.";
+  let response;
+  try {
+    response = await env.AI.run(MODEL, { messages });
+  } catch (error) {
+    return json(
+      {
+        error: "Workers AI request failed.",
+        detail: error instanceof Error ? error.message : String(error)
+      },
+      env,
+      502
+    );
+  }
+
+  const reply =
+    typeof response?.response === "string"
+      ? response.response
+      : "I can help with Happy Boo downloads and game strategy.";
 
   return json({ reply }, env);
 }

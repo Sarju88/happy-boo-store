@@ -1,16 +1,22 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { Download, Gift, Heart, Image, X } from "lucide-react";
+import { Download, Gift, Heart, Image, MessageCircle, Send, X } from "lucide-react";
 import "./styles.css";
 import { products, type Product } from "./products";
 
 const asset = (path: string) => `${import.meta.env.BASE_URL}${path}`;
 const statsUrl = import.meta.env.VITE_STORE_STATS_URL?.trim() ?? "";
 const downloadTrackerUrl = statsUrl ? statsUrl.replace(/\/total\/?$/, "/download") : "";
+const chatbotUrl = import.meta.env.VITE_CHATBOT_URL?.trim() ?? "";
 
 type StoreStats = {
   totalDownloads?: number;
   updatedAt?: string;
+};
+
+type ChatMessage = {
+  role: "assistant" | "user";
+  content: string;
 };
 
 function App() {
@@ -20,6 +26,15 @@ function App() {
     statsUrl ? "loading" : "idle"
   );
   const [pendingDownload, setPendingDownload] = React.useState<Product | null>(null);
+  const [isChatOpen, setIsChatOpen] = React.useState(false);
+  const [chatInput, setChatInput] = React.useState("");
+  const [chatStatus, setChatStatus] = React.useState<"idle" | "sending">("idle");
+  const [chatMessages, setChatMessages] = React.useState<ChatMessage[]>([
+    {
+      role: "assistant",
+      content: "Ask me about Happy Boo downloads or game strategy."
+    }
+  ]);
 
   const categories = ["All", ...Array.from(new Set(products.map((product) => product.category)))];
   const visibleProducts =
@@ -89,6 +104,63 @@ function App() {
     link.click();
     link.remove();
     setPendingDownload(null);
+  };
+
+  const sendChatMessage = (message: string) => {
+    const trimmed = message.trim();
+    if (!trimmed || chatStatus === "sending") {
+      return;
+    }
+
+    const outgoingMessages: ChatMessage[] = [...chatMessages, { role: "user", content: trimmed }];
+    setChatMessages(outgoingMessages);
+    setChatInput("");
+
+    if (!chatbotUrl) {
+      setChatMessages([
+        ...outgoingMessages,
+        {
+          role: "assistant",
+          content: "The Happy Boo guide is not connected yet. Add VITE_CHATBOT_URL to enable it."
+        }
+      ]);
+      return;
+    }
+
+    setChatStatus("sending");
+    fetch(chatbotUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: trimmed,
+        messages: chatMessages.slice(-8)
+      })
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Chat request failed.");
+        }
+        return response.json() as Promise<{ reply?: string }>;
+      })
+      .then((data) => {
+        setChatMessages([
+          ...outgoingMessages,
+          {
+            role: "assistant",
+            content: data.reply ?? "I can help with Happy Boo downloads and game strategy."
+          }
+        ]);
+      })
+      .catch(() => {
+        setChatMessages([
+          ...outgoingMessages,
+          {
+            role: "assistant",
+            content: "The Happy Boo guide is unavailable right now. Try again after the Worker is deployed."
+          }
+        ]);
+      })
+      .finally(() => setChatStatus("idle"));
   };
 
   React.useEffect(() => {
@@ -236,6 +308,69 @@ function App() {
         <span>All items are free. Donations are optional.</span>
         <span>© 2026 Sarju88</span>
       </footer>
+
+      <aside className={isChatOpen ? "chat-widget open" : "chat-widget"} aria-label="Happy Boo guide">
+        {isChatOpen ? (
+          <section className="chat-panel" aria-label="Happy Boo guide chat">
+            <div className="chat-header">
+              <div>
+                <strong>Boo Guide</strong>
+                <span>Store help and game strategy</span>
+              </div>
+              <button
+                aria-label="Close Happy Boo guide"
+                className="icon-button"
+                onClick={() => setIsChatOpen(false)}
+                type="button"
+              >
+                <X size={19} aria-hidden="true" />
+              </button>
+            </div>
+
+            <div className="chat-log" aria-live="polite">
+              {chatMessages.map((message, index) => (
+                <p className={`chat-message ${message.role}`} key={`${message.role}-${index}`}>
+                  {message.content}
+                </p>
+              ))}
+              {chatStatus === "sending" ? <p className="chat-message assistant">Thinking...</p> : null}
+            </div>
+
+            <div className="chat-prompts" aria-label="Suggested Happy Boo guide questions">
+              {["Which download should I get?", "How do food pickups help?", "Give me a game strategy"].map(
+                (prompt) => (
+                  <button key={prompt} onClick={() => sendChatMessage(prompt)} type="button">
+                    {prompt}
+                  </button>
+                )
+              )}
+            </div>
+
+            <form
+              className="chat-form"
+              onSubmit={(event) => {
+                event.preventDefault();
+                sendChatMessage(chatInput);
+              }}
+            >
+              <input
+                aria-label="Ask the Happy Boo guide"
+                onChange={(event) => setChatInput(event.target.value)}
+                placeholder="Ask about downloads or strategy"
+                value={chatInput}
+              />
+              <button aria-label="Send message" disabled={chatStatus === "sending"} type="submit">
+                <Send size={18} aria-hidden="true" />
+              </button>
+            </form>
+          </section>
+        ) : null}
+
+        <button className="chat-launcher" onClick={() => setIsChatOpen(true)} type="button">
+          <MessageCircle size={20} aria-hidden="true" />
+          Boo Guide
+        </button>
+      </aside>
 
       {pendingDownload ? (
         <div className="donation-backdrop" role="presentation">

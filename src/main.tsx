@@ -81,8 +81,8 @@ function App() {
           <p className="eyebrow">Free first</p>
           <h2>Everything here costs $0.</h2>
           <p>
-            Before each download, the store asks whether you want to make a small optional
-            donation. You can always continue without donating.
+            Before each download, the store shows a PayPal tip jar QR code. Scan it if you want
+            to donate, or continue without donating.
           </p>
         </div>
       </section>
@@ -182,19 +182,26 @@ function App() {
             <h2 id="donation-title">Keep Happy Boo downloads free</h2>
             <p>
               You are about to download <strong>{pendingDownload.name}</strong> for free. If you
-              want to support more Happy Boo extras, you can leave a small donation first.
+              want to support more Happy Boo extras, scan the PayPal tip jar before continuing.
             </p>
 
+            <div className="tip-jar-card">
+              <img src={asset("assets/donations/paypal-tip-jar-qr.png")} alt="PayPal tip jar QR code" />
+              <div>
+                <strong>PayPal Tip Jar</strong>
+                <span>Scan with your phone camera to donate.</span>
+              </div>
+            </div>
+
             <div className="donation-actions">
-              <a
+              <button
                 className="button donate"
-                href="https://github.com/sponsors/Sarju88"
-                rel="noreferrer"
-                target="_blank"
+                onClick={() => startDownload(pendingDownload)}
+                type="button"
               >
                 <Heart size={19} aria-hidden="true" />
-                Donate
-              </a>
+                I donated, download
+              </button>
               <button
                 className="continue-link"
                 data-testid="continue-download"

@@ -1,0 +1,11 @@
+name = "happy-boo-donation-tracker"
+main = "src/index.ts"
+compatibility_date = "2026-07-10"
+
+[vars]
+ALLOWED_ORIGIN = "https://store.arjunrao.dev"
+DONATION_CURRENCY = "USD"
+
+[[kv_namespaces]]
+binding = "DONATION_TOTAL"
+id = "replace-with-cloudflare-kv-namespace-id"

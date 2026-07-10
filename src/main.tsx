@@ -5,9 +5,19 @@ import "./styles.css";
 import { products, type Product } from "./products";
 
 const asset = (path: string) => `${import.meta.env.BASE_URL}${path}`;
+const donationTotalUrl = import.meta.env.VITE_DONATION_TOTAL_URL?.trim() ?? "";
+
+type DonationTotal = {
+  totalFormatted: string;
+  updatedAt?: string;
+};
 
 function App() {
   const [activeCategory, setActiveCategory] = React.useState("All");
+  const [donationTotal, setDonationTotal] = React.useState<DonationTotal | null>(null);
+  const [donationTotalStatus, setDonationTotalStatus] = React.useState<"idle" | "loading" | "ready" | "unavailable">(
+    donationTotalUrl ? "loading" : "idle"
+  );
   const [pendingDownload, setPendingDownload] = React.useState<Product | null>(null);
 
   const categories = ["All", ...Array.from(new Set(products.map((product) => product.category)))];
@@ -25,6 +35,42 @@ function App() {
     link.remove();
     setPendingDownload(null);
   };
+
+  React.useEffect(() => {
+    if (!donationTotalUrl) {
+      return;
+    }
+
+    const controller = new AbortController();
+    setDonationTotalStatus("loading");
+
+    fetch(donationTotalUrl, { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Donation total request failed.");
+        }
+        return response.json() as Promise<DonationTotal>;
+      })
+      .then((total) => {
+        setDonationTotal(total);
+        setDonationTotalStatus("ready");
+      })
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          return;
+        }
+        setDonationTotalStatus("unavailable");
+      });
+
+    return () => controller.abort();
+  }, []);
+
+  const donationTotalLabel =
+    donationTotalStatus === "ready" && donationTotal
+      ? donationTotal.totalFormatted
+      : donationTotalStatus === "loading"
+        ? "Loading..."
+        : "Updates soon";
 
   return (
     <main className="store-shell">
@@ -85,6 +131,10 @@ function App() {
             to donate, or continue without donating.
           </p>
         </div>
+        <aside className="donation-total-card" aria-label="Donation total">
+          <span>Total donated</span>
+          <strong>{donationTotalLabel}</strong>
+        </aside>
       </section>
 
       <section className="section product-section" id="downloads">
@@ -190,6 +240,7 @@ function App() {
               <div>
                 <strong>PayPal Tip Jar</strong>
                 <span>Scan with your phone camera to donate.</span>
+                <small>Total donated: {donationTotalLabel}</small>
               </div>
             </div>
 

@@ -55,6 +55,32 @@ export const products: Product[] = [
     details: ["128 x 128", "PNG", "Mint skin"]
   },
   {
+    id: "gold-boo-avatar",
+    name: "Gold Boo Profile Picture",
+    shortName: "Gold Avatar",
+    category: "Profile Pictures",
+    description: "A bright golden Happy Boo avatar for profiles that need a coin-store shine.",
+    image: asset("assets/boo/gold-boo.png"),
+    downloadUrl: asset("assets/boo/gold-boo.png"),
+    fileName: "gold-boo-profile-picture.png",
+    fileType: "PNG avatar",
+    accentColor: "#ffc832",
+    details: ["128 x 128", "PNG", "Gold skin"]
+  },
+  {
+    id: "sappy-boo-avatar",
+    name: "Sappy Boo Profile Picture",
+    shortName: "Sappy Avatar",
+    category: "Profile Pictures",
+    description: "A leafy green Happy Boo avatar with a soft nature-inspired look.",
+    image: asset("assets/boo/sappy-boo.png"),
+    downloadUrl: asset("assets/boo/sappy-boo.png"),
+    fileName: "sappy-boo-profile-picture.png",
+    fileType: "PNG avatar",
+    accentColor: "#86d95b",
+    details: ["128 x 128", "PNG", "Sappy skin"]
+  },
+  {
     id: "classic-boo-wallpaper",
     name: "Classic Boo Desktop Background",
     shortName: "Classic Wallpaper",

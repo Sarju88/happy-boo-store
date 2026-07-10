@@ -393,6 +393,7 @@ function App() {
         <button
           className="chat-launcher boo-pet-button"
           onClick={() => setIsChatOpen(true)}
+          aria-label="Open Happy Boo AI guide"
           type="button"
         >
           <span className="boo-pet-stage" aria-hidden="true">
@@ -408,18 +409,6 @@ function App() {
               <span />
             </span>
             <span className="boo-face boo-face-blocked">!</span>
-          </span>
-          <span className="boo-pet-copy">
-            <strong>Boo Guide</strong>
-            <span>
-              {booMood === "thinking"
-                ? "Thinking..."
-                : booMood === "responding"
-                  ? "Answering"
-                  : booMood === "blocked"
-                    ? "Happy Boo only"
-                    : "Ask me"}
-            </span>
           </span>
         </button>
       </aside>

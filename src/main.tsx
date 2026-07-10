@@ -1,24 +1,23 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { Download, Gift, Heart, Image, Sparkles, X } from "lucide-react";
+import { Download, Gift, Heart, Image, X } from "lucide-react";
 import "./styles.css";
 import { products, type Product } from "./products";
 
 const asset = (path: string) => `${import.meta.env.BASE_URL}${path}`;
-const donationTotalUrl = import.meta.env.VITE_DONATION_TOTAL_URL?.trim() ?? "";
-const downloadTrackerUrl = donationTotalUrl ? donationTotalUrl.replace(/\/total\/?$/, "/download") : "";
+const statsUrl = import.meta.env.VITE_STORE_STATS_URL?.trim() ?? "";
+const downloadTrackerUrl = statsUrl ? statsUrl.replace(/\/total\/?$/, "/download") : "";
 
-type DonationTotal = {
-  totalFormatted: string;
+type StoreStats = {
   totalDownloads?: number;
   updatedAt?: string;
 };
 
 function App() {
   const [activeCategory, setActiveCategory] = React.useState("All");
-  const [donationTotal, setDonationTotal] = React.useState<DonationTotal | null>(null);
-  const [donationTotalStatus, setDonationTotalStatus] = React.useState<"idle" | "loading" | "ready" | "unavailable">(
-    donationTotalUrl ? "loading" : "idle"
+  const [storeStats, setStoreStats] = React.useState<StoreStats | null>(null);
+  const [statsStatus, setStatsStatus] = React.useState<"idle" | "loading" | "ready" | "unavailable">(
+    statsUrl ? "loading" : "idle"
   );
   const [pendingDownload, setPendingDownload] = React.useState<Product | null>(null);
 
@@ -29,28 +28,28 @@ function App() {
       : products.filter((product) => product.category === activeCategory);
 
   const refreshTotals = React.useCallback((signal?: AbortSignal) => {
-    if (!donationTotalUrl) {
+    if (!statsUrl) {
       return;
     }
 
-    setDonationTotalStatus("loading");
+    setStatsStatus("loading");
 
-    fetch(donationTotalUrl, { signal })
+    fetch(statsUrl, { signal })
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Donation total request failed.");
+          throw new Error("Store stats request failed.");
         }
-        return response.json() as Promise<DonationTotal>;
+        return response.json() as Promise<StoreStats>;
       })
-      .then((total) => {
-        setDonationTotal(total);
-        setDonationTotalStatus("ready");
+      .then((stats) => {
+        setStoreStats(stats);
+        setStatsStatus("ready");
       })
       .catch((error: unknown) => {
         if (error instanceof DOMException && error.name === "AbortError") {
           return;
         }
-        setDonationTotalStatus("unavailable");
+        setStatsStatus("unavailable");
       });
   }, []);
 
@@ -68,12 +67,12 @@ function App() {
         if (!response.ok) {
           return null;
         }
-        return response.json() as Promise<DonationTotal>;
+        return response.json() as Promise<StoreStats>;
       })
-      .then((total) => {
-        if (total) {
-          setDonationTotal(total);
-          setDonationTotalStatus("ready");
+      .then((stats) => {
+        if (stats) {
+          setStoreStats(stats);
+          setStatsStatus("ready");
         }
       })
       .catch(() => {
@@ -93,7 +92,7 @@ function App() {
   };
 
   React.useEffect(() => {
-    if (!donationTotalUrl) {
+    if (!statsUrl) {
       return;
     }
 
@@ -103,16 +102,10 @@ function App() {
     return () => controller.abort();
   }, [refreshTotals]);
 
-  const donationTotalLabel =
-    donationTotalStatus === "ready" && donationTotal
-      ? donationTotal.totalFormatted
-      : donationTotalStatus === "loading"
-        ? "Loading..."
-        : "Updates soon";
   const downloadCountLabel =
-    donationTotalStatus === "ready" && donationTotal?.totalDownloads !== undefined
-      ? donationTotal.totalDownloads.toLocaleString()
-      : donationTotalStatus === "loading"
+    statsStatus === "ready" && storeStats?.totalDownloads !== undefined
+      ? storeStats.totalDownloads.toLocaleString()
+      : statsStatus === "loading"
         ? "Loading..."
         : "Updates soon";
 
@@ -175,10 +168,6 @@ function App() {
             to donate, or continue without donating.
           </p>
         </div>
-        <aside className="donation-total-card" aria-label="Donation total">
-          <span>Total donated</span>
-          <strong>{donationTotalLabel}</strong>
-        </aside>
         <aside className="donation-total-card" aria-label="Download total">
           <span>Downloads</span>
           <strong>{downloadCountLabel}</strong>
@@ -288,7 +277,6 @@ function App() {
               <div>
                 <strong>PayPal Tip Jar</strong>
                 <span>Scan with your phone camera to donate.</span>
-                <small>Total donated: {donationTotalLabel}</small>
                 <small>Downloads: {downloadCountLabel}</small>
               </div>
             </div>

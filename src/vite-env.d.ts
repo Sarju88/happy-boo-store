@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  readonly VITE_DONATION_TOTAL_URL?: string;
+  readonly VITE_STORE_STATS_URL?: string;
 }
 
 interface ImportMeta {

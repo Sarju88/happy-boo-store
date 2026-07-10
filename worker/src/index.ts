@@ -20,6 +20,11 @@ type StoredTotal = {
   updatedAt: string;
 };
 
+type StoredDownloadTotal = {
+  totalDownloads: number;
+  updatedAt: string;
+};
+
 type PayPalEvent = {
   id?: string;
   event_type?: string;
@@ -34,6 +39,7 @@ type PayPalEvent = {
 };
 
 const TOTAL_KEY = "donation-total";
+const DOWNLOAD_TOTAL_KEY = "download-total";
 const CENTS_PER_UNIT = 100;
 
 export default {
@@ -48,6 +54,10 @@ export default {
       return json(await readTotal(env), env);
     }
 
+    if (request.method === "POST" && url.pathname === "/download") {
+      return handleDownload(request, env);
+    }
+
     if (request.method === "POST" && url.pathname === "/paypal/webhook") {
       return handlePayPalWebhook(request, env);
     }
@@ -55,6 +65,20 @@ export default {
     return json({ error: "Not found" }, env, 404);
   }
 };
+
+async function handleDownload(request: Request, env: Env): Promise<Response> {
+  await request.text();
+
+  const current = await readStoredDownloadTotal(env);
+  const updated: StoredDownloadTotal = {
+    totalDownloads: current.totalDownloads + 1,
+    updatedAt: new Date().toISOString()
+  };
+
+  await env.DONATION_TOTAL.put(DOWNLOAD_TOTAL_KEY, JSON.stringify(updated));
+
+  return json(await readTotal(env), env);
+}
 
 async function handlePayPalWebhook(request: Request, env: Env): Promise<Response> {
   const rawBody = await request.text();
@@ -91,7 +115,7 @@ async function handlePayPalWebhook(request: Request, env: Env): Promise<Response
   await env.DONATION_TOTAL.put(TOTAL_KEY, JSON.stringify(updated));
   await env.DONATION_TOTAL.put(`event:${eventId}`, "counted");
 
-  return json({ ok: true, total: publicTotal(updated) }, env);
+  return json({ ok: true, total: await readTotal(env) }, env);
 }
 
 function extractDonation(event: PayPalEvent, expectedCurrency: string): { amountCents: number; currency: string } | null {
@@ -179,15 +203,32 @@ async function readStoredTotal(env: Env, currency: string): Promise<StoredTotal>
   };
 }
 
-async function readTotal(env: Env): Promise<ReturnType<typeof publicTotal>> {
-  return publicTotal(await readStoredTotal(env, env.DONATION_CURRENCY ?? "USD"));
+async function readStoredDownloadTotal(env: Env): Promise<StoredDownloadTotal> {
+  const stored = await env.DONATION_TOTAL.get<StoredDownloadTotal>(DOWNLOAD_TOTAL_KEY, "json");
+  if (stored) {
+    return stored;
+  }
+
+  return {
+    totalDownloads: 0,
+    updatedAt: new Date().toISOString()
+  };
 }
 
-function publicTotal(total: StoredTotal) {
+async function readTotal(env: Env): Promise<ReturnType<typeof publicTotal>> {
+  const [donationTotal, downloadTotal] = await Promise.all([
+    readStoredTotal(env, env.DONATION_CURRENCY ?? "USD"),
+    readStoredDownloadTotal(env)
+  ]);
+  return publicTotal(donationTotal, downloadTotal);
+}
+
+function publicTotal(total: StoredTotal, downloadTotal: StoredDownloadTotal) {
   return {
     totalCents: total.totalCents,
     currency: total.currency,
     totalFormatted: formatMoney(total.totalCents, total.currency),
+    totalDownloads: downloadTotal.totalDownloads,
     updatedAt: total.updatedAt
   };
 }

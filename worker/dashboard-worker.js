@@ -1,4 +1,5 @@
 const TOTAL_KEY = "donation-total";
+const DOWNLOAD_TOTAL_KEY = "download-total";
 const CENTS_PER_UNIT = 100;
 
 export default {
@@ -13,6 +14,10 @@ export default {
       return json(await readTotal(env), env);
     }
 
+    if (request.method === "POST" && url.pathname === "/download") {
+      return handleDownload(request, env);
+    }
+
     if (request.method === "POST" && url.pathname === "/paypal/webhook") {
       return handlePayPalWebhook(request, env);
     }
@@ -20,6 +25,20 @@ export default {
     return json({ error: "Not found" }, env, 404);
   }
 };
+
+async function handleDownload(request, env) {
+  await request.text();
+
+  const current = await readStoredDownloadTotal(env);
+  const updated = {
+    totalDownloads: current.totalDownloads + 1,
+    updatedAt: new Date().toISOString()
+  };
+
+  await env.DONATION_TOTAL.put(DOWNLOAD_TOTAL_KEY, JSON.stringify(updated));
+
+  return json(await readTotal(env), env);
+}
 
 async function handlePayPalWebhook(request, env) {
   const rawBody = await request.text();
@@ -56,7 +75,7 @@ async function handlePayPalWebhook(request, env) {
   await env.DONATION_TOTAL.put(TOTAL_KEY, JSON.stringify(updated));
   await env.DONATION_TOTAL.put(`event:${eventId}`, "counted");
 
-  return json({ ok: true, total: publicTotal(updated) }, env);
+  return json({ ok: true, total: await readTotal(env) }, env);
 }
 
 function extractDonation(event, expectedCurrency) {
@@ -144,15 +163,32 @@ async function readStoredTotal(env, currency) {
   };
 }
 
-async function readTotal(env) {
-  return publicTotal(await readStoredTotal(env, env.DONATION_CURRENCY ?? "USD"));
+async function readStoredDownloadTotal(env) {
+  const stored = await env.DONATION_TOTAL.get(DOWNLOAD_TOTAL_KEY, "json");
+  if (stored) {
+    return stored;
+  }
+
+  return {
+    totalDownloads: 0,
+    updatedAt: new Date().toISOString()
+  };
 }
 
-function publicTotal(total) {
+async function readTotal(env) {
+  const [donationTotal, downloadTotal] = await Promise.all([
+    readStoredTotal(env, env.DONATION_CURRENCY ?? "USD"),
+    readStoredDownloadTotal(env)
+  ]);
+  return publicTotal(donationTotal, downloadTotal);
+}
+
+function publicTotal(total, downloadTotal) {
   return {
     totalCents: total.totalCents,
     currency: total.currency,
     totalFormatted: formatMoney(total.totalCents, total.currency),
+    totalDownloads: downloadTotal.totalDownloads,
     updatedAt: total.updatedAt
   };
 }

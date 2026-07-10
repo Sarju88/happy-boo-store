@@ -5,6 +5,7 @@ This Cloudflare Worker stores a public donation total for the Happy Boo download
 ## Endpoints
 
 - `GET /total` returns the public donation total.
+- `POST /download` increments and returns the public download total.
 - `POST /paypal/webhook` receives PayPal webhook events, verifies them with PayPal, deduplicates event IDs, and adds completed payments to the total.
 
 ## Important PayPal note

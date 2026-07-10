@@ -6,9 +6,11 @@ import { products, type Product } from "./products";
 
 const asset = (path: string) => `${import.meta.env.BASE_URL}${path}`;
 const donationTotalUrl = import.meta.env.VITE_DONATION_TOTAL_URL?.trim() ?? "";
+const downloadTrackerUrl = donationTotalUrl ? donationTotalUrl.replace(/\/total\/?$/, "/download") : "";
 
 type DonationTotal = {
   totalFormatted: string;
+  totalDownloads?: number;
   updatedAt?: string;
 };
 
@@ -26,25 +28,14 @@ function App() {
       ? products
       : products.filter((product) => product.category === activeCategory);
 
-  const startDownload = (product: Product) => {
-    const link = document.createElement("a");
-    link.href = product.downloadUrl;
-    link.download = product.fileName;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    setPendingDownload(null);
-  };
-
-  React.useEffect(() => {
+  const refreshTotals = React.useCallback((signal?: AbortSignal) => {
     if (!donationTotalUrl) {
       return;
     }
 
-    const controller = new AbortController();
     setDonationTotalStatus("loading");
 
-    fetch(donationTotalUrl, { signal: controller.signal })
+    fetch(donationTotalUrl, { signal })
       .then((response) => {
         if (!response.ok) {
           throw new Error("Donation total request failed.");
@@ -61,13 +52,66 @@ function App() {
         }
         setDonationTotalStatus("unavailable");
       });
+  }, []);
+
+  const recordDownload = (product: Product) => {
+    if (!downloadTrackerUrl) {
+      return;
+    }
+
+    fetch(downloadTrackerUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productId: product.id })
+    })
+      .then((response) => {
+        if (!response.ok) {
+          return null;
+        }
+        return response.json() as Promise<DonationTotal>;
+      })
+      .then((total) => {
+        if (total) {
+          setDonationTotal(total);
+          setDonationTotalStatus("ready");
+        }
+      })
+      .catch(() => {
+        refreshTotals();
+      });
+  };
+
+  const startDownload = (product: Product) => {
+    recordDownload(product);
+    const link = document.createElement("a");
+    link.href = product.downloadUrl;
+    link.download = product.fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setPendingDownload(null);
+  };
+
+  React.useEffect(() => {
+    if (!donationTotalUrl) {
+      return;
+    }
+
+    const controller = new AbortController();
+    refreshTotals(controller.signal);
 
     return () => controller.abort();
-  }, []);
+  }, [refreshTotals]);
 
   const donationTotalLabel =
     donationTotalStatus === "ready" && donationTotal
       ? donationTotal.totalFormatted
+      : donationTotalStatus === "loading"
+        ? "Loading..."
+        : "Updates soon";
+  const downloadCountLabel =
+    donationTotalStatus === "ready" && donationTotal?.totalDownloads !== undefined
+      ? donationTotal.totalDownloads.toLocaleString()
       : donationTotalStatus === "loading"
         ? "Loading..."
         : "Updates soon";
@@ -134,6 +178,10 @@ function App() {
         <aside className="donation-total-card" aria-label="Donation total">
           <span>Total donated</span>
           <strong>{donationTotalLabel}</strong>
+        </aside>
+        <aside className="donation-total-card" aria-label="Download total">
+          <span>Downloads</span>
+          <strong>{downloadCountLabel}</strong>
         </aside>
       </section>
 
@@ -241,6 +289,7 @@ function App() {
                 <strong>PayPal Tip Jar</strong>
                 <span>Scan with your phone camera to donate.</span>
                 <small>Total donated: {donationTotalLabel}</small>
+                <small>Downloads: {downloadCountLabel}</small>
               </div>
             </div>
 

@@ -257,7 +257,7 @@ h1 {
 
 .support-strip {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) minmax(160px, auto);
+  grid-template-columns: auto minmax(0, 1fr) minmax(150px, auto) minmax(150px, auto);
   gap: 18px;
   align-items: center;
   padding: clamp(18px, 3vw, 26px);

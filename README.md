@@ -15,12 +15,6 @@ Build the static site with:
 npm run build
 ```
 
-Regenerate the desktop background PNGs with:
-
-```bash
-npm run generate:wallpapers
-```
-
 Preview the production build locally with:
 
 ```bash
@@ -57,8 +51,11 @@ Copied assets:
 - `monsters/assets/bee_rest.png`
 - `monsters/assets/slime_spike_rest.png`
 
-Generated from those assets:
+Generated wallpaper assets:
 
+- `public/assets/wallpapers/classic-boo-desktop-background.png`
+- `public/assets/wallpapers/berry-boo-desktop-background.png`
+- `public/assets/wallpapers/mint-boo-desktop-background.png`
 - `public/assets/wallpapers/gold-boo-desktop-background.png`
 - `public/assets/wallpapers/sappy-boo-desktop-background.png`
 

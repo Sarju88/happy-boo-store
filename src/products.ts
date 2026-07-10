@@ -55,6 +55,45 @@ export const products: Product[] = [
     details: ["128 x 128", "PNG", "Mint skin"]
   },
   {
+    id: "classic-boo-wallpaper",
+    name: "Classic Boo Desktop Background",
+    shortName: "Classic Wallpaper",
+    category: "Desktop Backgrounds",
+    description: "A sunny meadow wallpaper with Classic Boo, soft hills, coins, and open icon space.",
+    image: asset("assets/wallpapers/classic-boo-desktop-background.png"),
+    downloadUrl: asset("assets/wallpapers/classic-boo-desktop-background.png"),
+    fileName: "classic-boo-desktop-background.png",
+    fileType: "PNG background",
+    accentColor: "#ffd24b",
+    details: ["1920 x 1080", "PNG", "Desktop"]
+  },
+  {
+    id: "berry-boo-wallpaper",
+    name: "Berry Boo Desktop Background",
+    shortName: "Berry Wallpaper",
+    category: "Desktop Backgrounds",
+    description: "A berry-purple sunset wallpaper with arcade hills, floating fruit, and sparkle trails.",
+    image: asset("assets/wallpapers/berry-boo-desktop-background.png"),
+    downloadUrl: asset("assets/wallpapers/berry-boo-desktop-background.png"),
+    fileName: "berry-boo-desktop-background.png",
+    fileType: "PNG background",
+    accentColor: "#d83990",
+    details: ["1920 x 1080", "PNG", "Desktop"]
+  },
+  {
+    id: "mint-boo-wallpaper",
+    name: "Mint Boo Desktop Background",
+    shortName: "Mint Wallpaper",
+    category: "Desktop Backgrounds",
+    description: "A cool crystal-cave wallpaper with Mint Boo, floating ice islands, and teal glow.",
+    image: asset("assets/wallpapers/mint-boo-desktop-background.png"),
+    downloadUrl: asset("assets/wallpapers/mint-boo-desktop-background.png"),
+    fileName: "mint-boo-desktop-background.png",
+    fileType: "PNG background",
+    accentColor: "#67dfc8",
+    details: ["1920 x 1080", "PNG", "Desktop"]
+  },
+  {
     id: "gold-boo-wallpaper",
     name: "Gold Boo Desktop Background",
     shortName: "Gold Wallpaper",

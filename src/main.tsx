@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { Download, Gift, Heart, Image, MessageCircle, Send, X } from "lucide-react";
+import { Download, Gift, Heart, Image, Send, X } from "lucide-react";
 import "./styles.css";
 import { products, type Product } from "./products";
 
@@ -19,6 +19,8 @@ type ChatMessage = {
   content: string;
 };
 
+type BooMood = "idle" | "thinking" | "responding" | "blocked";
+
 function App() {
   const [activeCategory, setActiveCategory] = React.useState("All");
   const [storeStats, setStoreStats] = React.useState<StoreStats | null>(null);
@@ -29,6 +31,7 @@ function App() {
   const [isChatOpen, setIsChatOpen] = React.useState(false);
   const [chatInput, setChatInput] = React.useState("");
   const [chatStatus, setChatStatus] = React.useState<"idle" | "sending">("idle");
+  const [booMood, setBooMood] = React.useState<BooMood>("idle");
   const [chatMessages, setChatMessages] = React.useState<ChatMessage[]>([
     {
       role: "assistant",
@@ -106,6 +109,18 @@ function App() {
     setPendingDownload(null);
   };
 
+  const setTemporaryBooMood = (mood: BooMood, duration = 2600) => {
+    setBooMood(mood);
+    window.setTimeout(() => {
+      setBooMood((currentMood) => (currentMood === mood ? "idle" : currentMood));
+    }, duration);
+  };
+
+  const isLimitedTopicReply = (reply: string) =>
+    /only (help|answer|talk|assist).{0,70}happy boo|can only (help|assist)|happy boo store and happy boo game strategy/i.test(
+      reply
+    );
+
   const sendChatMessage = (message: string) => {
     const trimmed = message.trim();
     if (!trimmed || chatStatus === "sending") {
@@ -115,8 +130,10 @@ function App() {
     const outgoingMessages: ChatMessage[] = [...chatMessages, { role: "user", content: trimmed }];
     setChatMessages(outgoingMessages);
     setChatInput("");
+    setBooMood("thinking");
 
     if (!chatbotUrl) {
+      setTemporaryBooMood("blocked");
       setChatMessages([
         ...outgoingMessages,
         {
@@ -143,15 +160,18 @@ function App() {
         return response.json() as Promise<{ reply?: string }>;
       })
       .then((data) => {
+        const reply = data.reply ?? "I can help with Happy Boo downloads and game strategy.";
+        setTemporaryBooMood(isLimitedTopicReply(reply) ? "blocked" : "responding");
         setChatMessages([
           ...outgoingMessages,
           {
             role: "assistant",
-            content: data.reply ?? "I can help with Happy Boo downloads and game strategy."
+            content: reply
           }
         ]);
       })
       .catch(() => {
+        setTemporaryBooMood("blocked");
         setChatMessages([
           ...outgoingMessages,
           {
@@ -309,7 +329,11 @@ function App() {
         <span>© 2026 Sarju88</span>
       </footer>
 
-      <aside className={isChatOpen ? "chat-widget open" : "chat-widget"} aria-label="Happy Boo guide">
+      <aside
+        className={isChatOpen ? "chat-widget open" : "chat-widget"}
+        data-boo-mood={booMood}
+        aria-label="Happy Boo guide"
+      >
         {isChatOpen ? (
           <section className="chat-panel" aria-label="Happy Boo guide chat">
             <div className="chat-header">
@@ -366,9 +390,37 @@ function App() {
           </section>
         ) : null}
 
-        <button className="chat-launcher" onClick={() => setIsChatOpen(true)} type="button">
-          <MessageCircle size={20} aria-hidden="true" />
-          Boo Guide
+        <button
+          className="chat-launcher boo-pet-button"
+          onClick={() => setIsChatOpen(true)}
+          type="button"
+        >
+          <span className="boo-pet-stage" aria-hidden="true">
+            <span className="boo-aura" />
+            <img className="boo-pet" src={asset("assets/boo/classic-boo.png")} alt="" />
+            <span className="boo-face boo-face-thinking">
+              <span />
+              <span />
+              <span />
+            </span>
+            <span className="boo-face boo-face-responding">
+              <span />
+              <span />
+            </span>
+            <span className="boo-face boo-face-blocked">!</span>
+          </span>
+          <span className="boo-pet-copy">
+            <strong>Boo Guide</strong>
+            <span>
+              {booMood === "thinking"
+                ? "Thinking..."
+                : booMood === "responding"
+                  ? "Answering"
+                  : booMood === "blocked"
+                    ? "Happy Boo only"
+                    : "Ask me"}
+            </span>
+          </span>
         </button>
       </aside>
 

@@ -11,6 +11,7 @@ const chatbotUrl = import.meta.env.VITE_CHATBOT_URL?.trim() ?? "";
 
 type StoreStats = {
   totalDownloads?: number;
+  productDownloads?: Record<string, number>;
   updatedAt?: string;
 };
 
@@ -201,6 +202,19 @@ function App() {
         ? "Loading..."
         : "Updates soon";
 
+  const getProductDownloadLabel = (productId: string) => {
+    if (statsStatus === "loading") {
+      return "Loading";
+    }
+
+    if (statsStatus !== "ready") {
+      return "Updates soon";
+    }
+
+    const downloads = storeStats?.productDownloads?.[productId] ?? 0;
+    return `${downloads.toLocaleString()} ${downloads === 1 ? "download" : "downloads"}`;
+  };
+
   return (
     <main className="store-shell">
       <header className="hero">
@@ -307,7 +321,10 @@ function App() {
                 </div>
               </div>
               <div className="product-footer">
-                <strong>Free</strong>
+                <div className="product-popularity" aria-label={`${product.name} download count`}>
+                  <strong>Free</strong>
+                  <span>{getProductDownloadLabel(product.id)}</span>
+                </div>
                 <button
                   className="button compact"
                   data-testid={`download-${product.id}`}

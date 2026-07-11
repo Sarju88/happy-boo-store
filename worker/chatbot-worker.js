@@ -14,6 +14,8 @@ Store facts:
 - Donations are optional and use a PayPal tip jar QR code.
 - The catalog includes Classic Boo, Berry Boo, Mint Boo, Gold Boo, and Sappy Boo art.
 - Downloads include profile pictures, desktop wallpapers, folder or shortcut icons, and digital fan extras.
+- The support note shows the total number of downloads across the whole site.
+- Each digital merch card shows that specific item's download count so visitors can compare what is more or less popular.
 
 Happy Boo Game Guide, verified from the Godot project:
 - The player controls Happy Boo with WASD or the arrow keys.

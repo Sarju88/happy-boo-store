@@ -7,8 +7,8 @@ Happy Boo guide chatbot.
 
 ## Endpoints
 
-- `GET /total` returns the public download total.
-- `POST /download` increments and returns the public download total.
+- `GET /total` returns the public site-wide download total and per-product download totals.
+- `POST /download` increments the site-wide total and, when `productId` is provided, that product's total.
 
 ## Setup
 

@@ -14,7 +14,12 @@ type StoredDownloadTotal = {
   updatedAt: string;
 };
 
+type StoreStats = StoredDownloadTotal & {
+  productDownloads: Record<string, number>;
+};
+
 const DOWNLOAD_TOTAL_KEY = "download-total";
+const PRODUCT_DOWNLOADS_KEY = "product-downloads";
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -37,15 +42,30 @@ export default {
 };
 
 async function handleDownload(request: Request, env: Env): Promise<Response> {
-  await request.text();
+  let productId = "";
+  const rawBody = await request.text();
+  try {
+    const body = rawBody ? JSON.parse(rawBody) : {};
+    productId = normalizeProductId((body as { productId?: unknown })?.productId);
+  } catch {
+    productId = "";
+  }
 
   const current = await readStoredDownloadTotal(env);
+  const productDownloads = await readStoredProductDownloads(env);
+  if (productId) {
+    productDownloads[productId] = (productDownloads[productId] ?? 0) + 1;
+  }
+
   const updated: StoredDownloadTotal = {
     totalDownloads: current.totalDownloads + 1,
     updatedAt: new Date().toISOString()
   };
 
-  await env.DONATION_TOTAL.put(DOWNLOAD_TOTAL_KEY, JSON.stringify(updated));
+  await Promise.all([
+    env.DONATION_TOTAL.put(DOWNLOAD_TOTAL_KEY, JSON.stringify(updated)),
+    env.DONATION_TOTAL.put(PRODUCT_DOWNLOADS_KEY, JSON.stringify(productDownloads))
+  ]);
 
   return json(await readTotal(env), env);
 }
@@ -62,12 +82,31 @@ async function readStoredDownloadTotal(env: Env): Promise<StoredDownloadTotal> {
   };
 }
 
-async function readTotal(env: Env): Promise<StoredDownloadTotal> {
+async function readTotal(env: Env): Promise<StoreStats> {
   const downloadTotal = await readStoredDownloadTotal(env);
+  const productDownloads = await readStoredProductDownloads(env);
   return {
     totalDownloads: downloadTotal.totalDownloads,
+    productDownloads,
     updatedAt: downloadTotal.updatedAt
   };
+}
+
+async function readStoredProductDownloads(env: Env): Promise<Record<string, number>> {
+  const stored = await env.DONATION_TOTAL.get<Record<string, number>>(PRODUCT_DOWNLOADS_KEY, "json");
+  if (stored && typeof stored === "object" && !Array.isArray(stored)) {
+    return stored;
+  }
+
+  return {};
+}
+
+function normalizeProductId(value: unknown): string {
+  if (typeof value !== "string") {
+    return "";
+  }
+
+  return value.trim().toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 80);
 }
 
 function json(data: unknown, env: Env, status = 200): Response {

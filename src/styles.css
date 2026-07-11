@@ -427,15 +427,26 @@ h1 {
   padding: 14px 18px 18px;
 }
 
-.product-footer strong {
+.product-popularity {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.product-popularity strong {
+  width: fit-content;
+  padding: 8px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 20%, #ffffff);
   color: var(--ink);
   font-size: 1.18rem;
 }
 
-.product-footer strong {
-  padding: 8px 10px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--accent) 20%, #ffffff);
+.product-popularity span {
+  color: #6c4710;
+  font-size: 0.78rem;
+  font-weight: 950;
+  text-transform: uppercase;
 }
 
 .icon-button {

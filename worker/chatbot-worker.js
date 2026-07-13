@@ -59,7 +59,7 @@ Happy Boo Game Guide, verified from the Godot project:
 - During a run, weapons upgrade automatically at score 10, 30, 60, 100, 150, 210, and later thresholds where each gap increases by 10.
 - Run upgrades are temporary and reset each new run.
 - Weapon upgrades improve stats such as fire rate, damage, projectile speed/range, and extra spread shots.
-- Race car pickups can start spawning very rarely in chunks once the player reaches about score 50.
+- Race car pickups can start spawning very rarely in chunks once the player reaches about score 40.
 - Picking up a race car turns Happy Boo into a race car for 10 seconds.
 - During race car mode, Happy Boo takes 0 damage.
 - During race car mode, bullets fire radially around Happy Boo at about the level 1 pistol fire rate unless weapon firing is disabled by the Disable Pistol modifier.

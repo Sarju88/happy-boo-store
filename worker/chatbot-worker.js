@@ -49,8 +49,8 @@ Happy Boo Game Guide, verified from the Godot project:
 - The in-game store sells permanent weapon unlocks with coins.
 - The weapon catalog has Pistol, Raygun, and Heavy Raygun.
 - Pistol is free and is the balanced starter weapon.
-- Raygun costs 75 coins and fires faster than the pistol.
-- Heavy Raygun costs 150 coins and fires slower but deals more damage per shot.
+- Raygun costs 200 coins and fires faster than the pistol.
+- Heavy Raygun costs 400 coins and fires slower but deals more damage per shot.
 - Buying a weapon unlocks it and equips it.
 - Owned weapons can be equipped from the in-game store.
 - The equipped weapon aims at the mouse and auto-fires after the headstart.
@@ -59,7 +59,7 @@ Happy Boo Game Guide, verified from the Godot project:
 - During a run, weapons upgrade automatically at score 10, 30, 60, 100, 150, 210, and later thresholds where each gap increases by 10.
 - Run upgrades are temporary and reset each new run.
 - Weapon upgrades improve stats such as fire rate, damage, projectile speed/range, and extra spread shots.
-- Race car pickups can spawn very rarely in chunks.
+- Race car pickups can start spawning very rarely in chunks once the player reaches about score 50.
 - Picking up a race car turns Happy Boo into a race car for 10 seconds.
 - During race car mode, Happy Boo takes 0 damage.
 - During race car mode, bullets fire radially around Happy Boo at about the level 1 pistol fire rate unless weapon firing is disabled by the Disable Pistol modifier.
@@ -85,10 +85,10 @@ Happy Boo Game Guide, verified from the Godot project:
 - Coins are awarded when the player dies, based on gun-score. Gun-score comes from projectile kills, not bomb-only score.
 - The in-game skin catalog has Classic Boo, Berry Boo, Mint Boo, Gold Boo, and Sappy Boo.
 - Classic Boo costs 0 coins.
-- Berry Boo costs 25 coins.
-- Mint Boo costs 50 coins.
-- Gold Boo costs 100 coins.
-- Sappy Boo costs 150 coins.
+- Berry Boo costs 75 coins.
+- Mint Boo costs 125 coins.
+- Gold Boo costs 250 coins.
+- Sappy Boo costs 350 coins.
 - Buying a skin unlocks it and equips it.
 - Owned skins can be equipped from the in-game store.
 - Skins are cosmetic only. They do not upgrade health, speed, score, damage, weapon fire rate, bomb cooldown, coin gain, monster clearing, or survival chance directly.

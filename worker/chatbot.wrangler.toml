@@ -1,0 +1,9 @@
+name = "happy-boo-chatbot"
+main = "chatbot-worker.js"
+compatibility_date = "2026-07-10"
+
+[vars]
+ALLOWED_ORIGIN = "https://store.arjunrao.dev"
+
+[ai]
+binding = "AI"

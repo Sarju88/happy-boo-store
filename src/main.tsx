@@ -23,6 +23,7 @@ type ChatMessage = {
 type BooMood = "idle" | "thinking" | "responding" | "blocked";
 
 function App() {
+  const [activeCreation, setActiveCreation] = React.useState<"Happy Boo" | "Smart Hub">("Happy Boo");
   const [activeCategory, setActiveCategory] = React.useState("All");
   const [storeStats, setStoreStats] = React.useState<StoreStats | null>(null);
   const [statsStatus, setStatsStatus] = React.useState<"idle" | "loading" | "ready" | "unavailable">(
@@ -36,15 +37,23 @@ function App() {
   const [chatMessages, setChatMessages] = React.useState<ChatMessage[]>([
     {
       role: "assistant",
-      content: "Ask me about Happy Boo downloads or game strategy."
+      content: "I’m the Happy Boo specialist for Arjun Rao’s Creation Digital Store. Ask me about Happy Boo downloads or game strategy."
     }
   ]);
 
-  const categories = ["All", ...Array.from(new Set(products.map((product) => product.category)))];
+  const creationProducts = products.filter(
+    (product) => (product.creation ?? "Happy Boo") === activeCreation
+  );
+  const categories = ["All", ...Array.from(new Set(creationProducts.map((product) => product.category)))];
   const visibleProducts =
     activeCategory === "All"
-      ? products
-      : products.filter((product) => product.category === activeCategory);
+      ? creationProducts
+      : creationProducts.filter((product) => product.category === activeCategory);
+
+  const selectCreation = (creation: "Happy Boo" | "Smart Hub") => {
+    setActiveCreation(creation);
+    setActiveCategory("All");
+  };
 
   const refreshTotals = React.useCallback((signal?: AbortSignal) => {
     if (!statsUrl) {
@@ -219,9 +228,9 @@ function App() {
     <main className="store-shell">
       <header className="hero">
         <nav className="topbar" aria-label="Store navigation">
-          <a className="brand" href="#top" aria-label="Happy Boo Digital Store home">
-            <img src={asset("assets/icon.png")} alt="" />
-            <span>Happy Boo Downloads</span>
+          <a className="brand" href="#top" aria-label="Arjun Rao's Creation Digital Store home">
+            <span className="brand-mark" aria-hidden="true">AR</span>
+            <span>Arjun Rao&apos;s Creation Digital Store</span>
           </a>
           <a className="play-link" href="#downloads">
             Browse freebies
@@ -230,12 +239,11 @@ function App() {
 
         <section className="hero-grid" id="top">
           <div className="hero-copy">
-            <p className="eyebrow">Free digital goodies</p>
-            <h1>Happy Boo downloads for profiles, desktops, and game fans.</h1>
+            <p className="eyebrow">Free creations by Arjun Rao</p>
+            <h1>Art and extras from the worlds I create.</h1>
             <p>
-              Grab free profile pictures, wallpapers, icon art, and printable-style digital
-              extras inspired by Classic Boo, Berry Boo, Mint Boo, Gold Boo, Sappy Boo, pickups,
-              bombs, and monster waves.
+              Browse free wallpapers, profile art, creator packs, and digital extras from Happy
+              Boo and Smart Hub. Pick a creation below, then download anything you like for $0.
             </p>
             <div className="hero-actions">
               <a className="button primary" href="#downloads">
@@ -249,8 +257,8 @@ function App() {
             </div>
           </div>
 
-          <div className="hero-products" aria-label="Featured Happy Boo downloads">
-            {products.slice(0, 5).map((product) => (
+          <div className="hero-products" aria-label={`Featured ${activeCreation} downloads`}>
+            {creationProducts.slice(0, 5).map((product) => (
               <article
                 className="mini-card"
                 style={{ "--accent": product.accentColor } as React.CSSProperties}
@@ -264,14 +272,42 @@ function App() {
         </section>
       </header>
 
+      <nav className="section creation-tabs" aria-label="Choose a creation">
+        <div>
+          <p className="eyebrow">Shop by creation</p>
+          <strong>Choose a world</strong>
+        </div>
+        <div className="creation-tab-list" role="tablist" aria-label="Creation storefronts">
+          {(["Happy Boo", "Smart Hub"] as const).map((creation) => (
+            <button
+              aria-selected={activeCreation === creation}
+              className={activeCreation === creation ? "creation-tab active" : "creation-tab"}
+              key={creation}
+              onClick={() => selectCreation(creation)}
+              role="tab"
+              type="button"
+            >
+              <img
+                alt=""
+                src={asset(
+                  creation === "Happy Boo" ? "assets/boo/classic-boo.png" : "assets/smart-hub/smart-hub-logo.png"
+                )}
+              />
+              <span>{creation}</span>
+              <small>{creation === "Happy Boo" ? "Game art & fan packs" : "Community art & backgrounds"}</small>
+            </button>
+          ))}
+        </div>
+      </nav>
+
       <section className="section support-strip" id="support-note">
         <Gift size={32} aria-hidden="true" />
         <div>
           <p className="eyebrow">Free first</p>
           <h2>Everything here costs $0.</h2>
           <p>
-            Before each download, the store shows a PayPal tip jar QR code. Scan it if you want
-            to donate, or continue without donating.
+            Before each download, the store shows the same PayPal tip jar QR code. Scan it if you
+            want to support future creations, or continue without donating.
           </p>
         </div>
         <aside className="donation-total-card" aria-label="Download total">
@@ -283,8 +319,8 @@ function App() {
       <section className="section product-section" id="downloads">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Digital catalog</p>
-            <h2>Profile pictures, wallpapers, icons, and fan downloads</h2>
+            <p className="eyebrow">{activeCreation} collection</p>
+            <h2>{activeCreation === "Happy Boo" ? "Game art, wallpapers, icons, and fan downloads" : "Smart Hub backgrounds and profile art"}</h2>
           </div>
           <div className="tabs" aria-label="Filter downloads by category">
             {categories.map((category) => (
@@ -341,7 +377,7 @@ function App() {
       </section>
 
       <footer className="footer">
-        <span>Happy Boo Digital Downloads</span>
+        <span>Arjun Rao&apos;s Creation Digital Store</span>
         <span>All items are free. Donations are optional.</span>
         <span>© 2026 Sarju88</span>
       </footer>
@@ -462,7 +498,7 @@ function App() {
             <h2 id="donation-title">Keep Happy Boo downloads free</h2>
             <p>
               You are about to download <strong>{pendingDownload.name}</strong> for free. If you
-              want to support more Happy Boo extras, scan the PayPal tip jar before continuing.
+              want to support more free creations, scan the PayPal tip jar before continuing.
             </p>
 
             <div className="tip-jar-card">

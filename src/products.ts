@@ -10,6 +10,7 @@ export type Product = {
   fileType: string;
   accentColor: string;
   details: string[];
+  creation?: "Happy Boo" | "Smart Hub";
 };
 
 const asset = (path: string) => `${import.meta.env.BASE_URL}${path}`;
@@ -379,6 +380,34 @@ export const products: Product[] = [
     fileType: "MP3 audio",
     accentColor: "#67dfc8",
     details: ["MP3", "Game music", "Audio"]
+  },
+  {
+    id: "smart-hub-community-background",
+    name: "Smart Hub Community Background",
+    shortName: "Community Background",
+    category: "Desktop Backgrounds",
+    creation: "Smart Hub",
+    description: "A polished Smart Hub scene made for desktops, calls, and personal setups.",
+    image: asset("assets/smart-hub/smart-hub-community-background.png"),
+    downloadUrl: asset("assets/smart-hub/smart-hub-community-background.png"),
+    fileName: "smart-hub-community-background.png",
+    fileType: "PNG background",
+    accentColor: "#7c4dff",
+    details: ["1568 x 1003", "PNG", "Desktop"]
+  },
+  {
+    id: "smart-hub-profile-logo",
+    name: "Smart Hub Profile Logo",
+    shortName: "Smart Hub Logo",
+    category: "Profile Pictures",
+    creation: "Smart Hub",
+    description: "The friendly purple Smart Hub face, ready for profiles and personal shortcuts.",
+    image: asset("assets/smart-hub/smart-hub-logo.png"),
+    downloadUrl: asset("assets/smart-hub/smart-hub-logo.png"),
+    fileName: "smart-hub-profile-logo.png",
+    fileType: "PNG image",
+    accentColor: "#8b5cf6",
+    details: ["512 x 512", "PNG", "Profile-ready"]
   }
 
 ];
